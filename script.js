@@ -87,8 +87,8 @@ function renderArea(mineNum, lineNum, columnNum) {
  * @param {*} id 
  */
 function onItemClick(id) {
-  const i = id.split('-')[0]
-  const j = id.split('-').pop()
+  const i = Number(id.split('-')[0])
+  const j = Number(id.split('-').pop())
   const element = document.getElementById(id)
   if (typeof mines[i][j] === 'boolean' && mines[i][j]) {
     // 点到雷，游戏结束
@@ -97,7 +97,7 @@ function onItemClick(id) {
   } else if (mines[i][j] > 0) {
     element.innerText = mines[i][j]
   } else {
-    element.classList.add('empty')
+    onClickEmpty(i, j)
   }
 }
 
@@ -119,12 +119,52 @@ function done() {
   }
 }
 
+/**
+ * 点击空格子，将附近所有空格子点开
+ * @param {*} x 
+ * @param {*} y
+ */
+function onClickEmpty(x, y) {
+  // 该行
+  let j = y
+  let i = x
+  while (mines[i][j] === 0 && i > 0) {
+    i--
+  }
+  const iMin = i
+  i = x
+  while (mines[i][j] === 0 && i < mines.length - 1) {
+    i++
+  }
+  const iMax = i
+  for (let indexI = iMin; indexI <= iMax; indexI++) {
+    while (mines[indexI][j] === 0 && j > 0) {
+      j--
+    }
+    const jMin = j
+    j = y
+    while (mines[indexI][j] === 0 && j < mines[indexI].length - 1) {
+      j++
+    }
+    const jMax = j
+    j = y
+    for (let indexJ = jMin; indexJ <= jMax; indexJ++) {
+      const element = document.getElementById(`${indexI}-${indexJ}`)
+      if (mines[indexI][indexJ] > 0) {
+        element.innerText = mines[indexI][indexJ]
+      } else {
+        element.classList.add('empty')
+      }
+    }
+  }
+}
+
 // 渲染雷区
 renderArea(config.mineNum, config.lineNum, config.columnNum)
 // 监听事件
 container.addEventListener('click', function (e) {
-  if (!isGameOver) {
-    const id = e.target.id
+  const id = e.target.id
+  if (!isGameOver && id) {
     onItemClick(id)
   }
 })
