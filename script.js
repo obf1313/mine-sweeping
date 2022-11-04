@@ -83,13 +83,17 @@ function renderArea(mineNum, lineNum, columnNum) {
 }
 
 /**
- * 点击某个格子
+ * 左键点击某个格子
  * @param {*} id 
  */
-function onItemClick(id) {
+function onLeftClick(id) {
   const i = Number(id.split('-')[0])
   const j = Number(id.split('-').pop())
   const element = document.getElementById(id)
+  // 如果被标了旗子，则不能点击
+  if (element.innerText === '♞') {
+    return
+  }
   if (typeof mines[i][j] === 'boolean' && mines[i][j]) {
     // 点到雷，游戏结束
     isGameOver = true
@@ -98,6 +102,20 @@ function onItemClick(id) {
     element.innerText = mines[i][j]
   } else {
     onClickEmpty(i, j)
+  }
+}
+
+/**
+ * 右键点击某个格子
+ * @param {*} id 
+ */
+function onRightClick(id) {
+  const element = document.getElementById(id)
+  // 全都标旗子
+  if (element.innerText === '♞') {
+    element.innerText = ''
+  } else {
+    element.innerText = '♞'
   }
 }
 
@@ -161,10 +179,18 @@ function onClickEmpty(x, y) {
 
 // 渲染雷区
 renderArea(config.mineNum, config.lineNum, config.columnNum)
-// 监听事件
+// 监听左键点击事件
 container.addEventListener('click', function (e) {
   const id = e.target.id
   if (!isGameOver && id) {
-    onItemClick(id)
+    onLeftClick(id)
   }
 })
+// 监听右键点击事件
+window.oncontextmenu = function (e) {
+  e.preventDefault();
+  const id = e.target.id
+  if (!isGameOver && id) {
+    onRightClick(id)
+  }
+}
