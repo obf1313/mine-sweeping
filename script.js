@@ -1,22 +1,24 @@
 /** 配置 */
 const config = {
   /** 雷数量 */
-  mineNum: 80,
+  mineNum: 100,
   /** 行数 */
   lineNum: 30,
   /** 列数 */
-  columnNum: 20
+  columnNum: 20,
 }
 /** 雷区 */
 let mines = []
 const container = document.getElementById('container')
 /** 游戏是否结束 */
 let isGameOver = false
+/** 是否打开调试模式：调试模式会显示所有雷的位置 */
+const isDebug = true
 /**
  * 随机生成雷的位置
- * @param {*} mineNum 
- * @param {*} lineNum 
- * @param {*} columnNum 
+ * @param {*} mineNum
+ * @param {*} lineNum
+ * @param {*} columnNum
  */
 function getMinePosition(mineNum, lineNum, columnNum) {
   // 初始化数组
@@ -35,15 +37,15 @@ function getMinePosition(mineNum, lineNum, columnNum) {
 
 /**
  * 根据雷获取数字区域
- * @param {*} mines 
+ * @param {*} mines
  */
 function getNum(mines, lineNum, columnNum) {
   for (let i = 0; i < lineNum; i++) {
     for (let j = 0; j < columnNum; j++) {
       const iStart = i === 0 ? 0 : i - 1
-      const iEnd = i === (lineNum - 1) ? (lineNum - 1) : i + 1
+      const iEnd = i === lineNum - 1 ? lineNum - 1 : i + 1
       const jStart = j === 0 ? 0 : j - 1
-      const jEnd = j === (columnNum - 1) ? (columnNum - 1) : j + 1
+      const jEnd = j === columnNum - 1 ? columnNum - 1 : j + 1
       // 非雷
       if (mines[i][j] === false) {
         let mineNum = 0
@@ -63,9 +65,9 @@ function getNum(mines, lineNum, columnNum) {
 
 /**
  * 渲染网格
- * @param {*} mineNum 
- * @param {*} lineNum 
- * @param {*} columnNum 
+ * @param {*} mineNum
+ * @param {*} lineNum
+ * @param {*} columnNum
  */
 function renderArea(mineNum, lineNum, columnNum) {
   mines = getMinePosition(mineNum, lineNum, columnNum)
@@ -76,6 +78,12 @@ function renderArea(mineNum, lineNum, columnNum) {
       const element = document.createElement('div')
       element.classList.add('item')
       element.id = `${i}-${j}`
+      // 开启调试模式显示雷的位置
+      if (isDebug) {
+        if (typeof mines[i][j] === 'boolean' && mines[i][j]) {
+          element.classList.add('mine')
+        }
+      }
       row.appendChild(element)
     }
     container.appendChild(row)
@@ -84,7 +92,7 @@ function renderArea(mineNum, lineNum, columnNum) {
 
 /**
  * 左键点击某个格子
- * @param {*} id 
+ * @param {*} id
  */
 function onLeftClick(id) {
   const i = Number(id.split('-')[0])
@@ -107,7 +115,7 @@ function onLeftClick(id) {
 
 /**
  * 右键点击某个格子
- * @param {*} id 
+ * @param {*} id
  */
 function onRightClick(id) {
   const element = document.getElementById(id)
@@ -120,26 +128,35 @@ function onRightClick(id) {
 }
 
 /**
+ * 渲染格子
+ * @param {*} i
+ * @param {*} j
+ */
+function renderCell(i, j) {
+  const element = document.getElementById(`${i}-${j}`)
+  if (typeof mines[i][j] === 'boolean' && mines[i][j]) {
+    element.classList.add('mine')
+  } else if (mines[i][j] > 0) {
+    element.innerText = mines[i][j]
+  } else {
+    element.classList.add('empty')
+  }
+}
+
+/**
  * 游戏结束
  */
 function done() {
   for (let i = 0; i < mines.length; i++) {
     for (let j = 0; j < mines[i].length; j++) {
-      const element = document.getElementById(`${i}-${j}`)
-      if (typeof mines[i][j] === 'boolean' && mines[i][j]) {
-        element.classList.add('mine')
-      } else if (mines[i][j] > 0) {
-        element.innerText = mines[i][j]
-      } else {
-        element.classList.add('empty')
-      }
+      renderCell(i, j)
     }
   }
 }
 
 /**
  * 点击空格子，将附近所有空格子点开
- * @param {*} x 
+ * @param {*} x
  * @param {*} y
  */
 function onClickEmpty(x, y) {
@@ -167,18 +184,10 @@ function onClickEmpty(x, y) {
     const jMax = j
     j = y
     for (let indexJ = jMin; indexJ <= jMax; indexJ++) {
-      const element = document.getElementById(`${indexI}-${indexJ}`)
-      if (mines[indexI][indexJ] > 0) {
-        element.innerText = mines[indexI][indexJ]
-      } else {
-        element.classList.add('empty')
-      }
+      renderCell(indexI, indexJ)
     }
   }
 }
-
-// 渲染雷区
-renderArea(config.mineNum, config.lineNum, config.columnNum)
 // 监听左键点击事件
 container.addEventListener('click', function (e) {
   const id = e.target.id
@@ -188,9 +197,11 @@ container.addEventListener('click', function (e) {
 })
 // 监听右键点击事件
 window.oncontextmenu = function (e) {
-  e.preventDefault();
+  e.preventDefault()
   const id = e.target.id
   if (!isGameOver && id) {
     onRightClick(id)
   }
 }
+// 渲染雷区
+renderArea(config.mineNum, config.lineNum, config.columnNum)
