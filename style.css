@@ -12,20 +12,29 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 12px;
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  border-right: solid 1px #ddd;
-  border-bottom: solid 1px #ddd;
-  background-color: lightblue;
-  color: green;
+  background-image: url(./images/blank.gif);
+  background-size: cover;
 }
 
 .mine {
-  background-color: lightcoral;
+  background-image: url(./images/mine.gif);
+  background-size: cover;
+}
+
+.click-mine {
+  background-image: url(./images/blood.gif);
+  background-size: cover;
 }
 
 .empty {
-  background-color: aliceblue;
+  background-image: url(./images/0.gif);
+  background-size: cover;
+}
+
+.flag {
+  background-image: url(./images/flag.gif);
+  background-size: cover;
 }

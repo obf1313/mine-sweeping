@@ -99,15 +99,15 @@ function onLeftClick(id) {
   const j = Number(id.split('-').pop())
   const element = document.getElementById(id)
   // 如果被标了旗子，则不能点击
-  if (element.innerText === '♞') {
+  if (element.classList.contains('flag')) {
     return
   }
   if (typeof mines[i][j] === 'boolean' && mines[i][j]) {
     // 点到雷，游戏结束
     isGameOver = true
-    done()
+    done(i, j)
   } else if (mines[i][j] > 0) {
-    element.innerText = mines[i][j]
+    element.style.backgroundImage = `url(./images/${mines[i][j]}.gif)`
   } else {
     onClickEmpty(i, j)
   }
@@ -120,10 +120,10 @@ function onLeftClick(id) {
 function onRightClick(id) {
   const element = document.getElementById(id)
   // 全都标旗子
-  if (element.innerText === '♞') {
-    element.innerText = ''
+  if (element.classList.contains('flag')) {
+    element.classList.remove('flag')
   } else {
-    element.innerText = '♞'
+    element.classList.add('flag')
   }
 }
 
@@ -131,13 +131,18 @@ function onRightClick(id) {
  * 渲染格子
  * @param {*} i
  * @param {*} j
+ * @param {*} isMineClick
  */
-function renderCell(i, j) {
+function renderCell(i, j, isMineClick) {
   const element = document.getElementById(`${i}-${j}`)
   if (typeof mines[i][j] === 'boolean' && mines[i][j]) {
-    element.classList.add('mine')
+    if (isMineClick) {
+      element.classList.add('click-mine')
+    } else {
+      element.classList.add('mine')
+    }
   } else if (mines[i][j] > 0) {
-    element.innerText = mines[i][j]
+    element.style.backgroundImage = `url(./images/${mines[i][j]}.gif)`
   } else {
     element.classList.add('empty')
   }
@@ -146,10 +151,10 @@ function renderCell(i, j) {
 /**
  * 游戏结束
  */
-function done() {
+function done(row, column) {
   for (let i = 0; i < mines.length; i++) {
     for (let j = 0; j < mines[i].length; j++) {
-      renderCell(i, j)
+      renderCell(i, j, row === i && column === j)
     }
   }
 }
