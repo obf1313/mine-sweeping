@@ -13,7 +13,25 @@ const container = document.getElementById('container')
 /** 游戏是否结束 */
 let isGameOver = false
 /** 是否打开调试模式：调试模式会显示所有雷的位置 */
-const isDebug = false
+let isDebug = true
+/** 是否打开缓存，方便调试 */
+let isStore = true
+
+/**
+ * 点击调试模式按钮
+ */
+function onDebugClick() {
+  const debugEl = document.getElementById('debug-mode')
+  isDebug = !isDebug
+  debugEl.innerText = isDebug ? '调试模式已开启' : '调试模式已关闭'
+  renderArea(config.mineNum, config.lineNum, config.columnNum)
+}
+/**
+ * 重新开始游戏
+ */
+function restart() {
+  renderArea(config.mineNum, config.lineNum, config.columnNum)
+}
 /**
  * 随机生成雷的位置
  * @param {*} mineNum
@@ -32,6 +50,9 @@ function getMinePosition(mineNum, lineNum, columnNum) {
     }
   }
   getNum(mines, lineNum, columnNum)
+  if (isStore) {
+    localStorage.setItem('mines', JSON.stringify(mines))
+  }
   return mines
 }
 
@@ -70,7 +91,13 @@ function getNum(mines, lineNum, columnNum) {
  * @param {*} columnNum
  */
 function renderArea(mineNum, lineNum, columnNum) {
-  mines = getMinePosition(mineNum, lineNum, columnNum)
+  container.innerHTML = ''
+  // 如果未开启缓存
+  if (isStore) {
+    mines = JSON.parse(localStorage.getItem('mines')) || getMinePosition(mineNum, lineNum, columnNum)
+  } else {
+    mines = getMinePosition(mineNum, lineNum, columnNum)
+  }
   for (let i = 0; i < lineNum; i++) {
     const row = document.createElement('div')
     row.className = 'row'
@@ -206,7 +233,7 @@ function done(row, column) {
  * @param {*} y
  */
 function onClickEmpty(x, y) {
-  // 该行
+  // 所有横向
   let j = y
   let i = x
   while (mines[i][j] === 0 && i > 0) {
@@ -214,7 +241,7 @@ function onClickEmpty(x, y) {
   }
   const iMin = i
   i = x
-  while (mines[i][j] === 0 && i < mines.length - 1) {
+  while (mines[i][j] === 0 && i < config.lineNum - 1) {
     i++
   }
   const iMax = i
@@ -224,7 +251,7 @@ function onClickEmpty(x, y) {
     }
     const jMin = j
     j = y
-    while (mines[indexI][j] === 0 && j < mines[indexI].length - 1) {
+    while (mines[indexI][j] === 0 && j < config.columnNum - 1) {
       j++
     }
     const jMax = j

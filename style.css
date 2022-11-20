@@ -42,3 +42,14 @@
   background-image: url(./images/flag.gif);
   background-size: cover;
 }
+
+.button-group {
+  margin-top: 20px;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #fff;
+  border: 1px solid lightcoral;
+  cursor: pointer;
+}
