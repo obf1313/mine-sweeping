@@ -1,3 +1,7 @@
+:root {
+  --width: 20px;
+}
+
 * {
   margin: 0;
   box-sizing: border-box;
@@ -13,8 +17,8 @@
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
+  width: var(--width);
+  height: var(--width);
   background-image: url(./images/blank.gif);
   background-size: cover;
 }

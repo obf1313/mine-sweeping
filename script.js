@@ -13,7 +13,7 @@ const container = document.getElementById('container')
 /** 游戏是否结束 */
 let isGameOver = false
 /** 是否打开调试模式：调试模式会显示所有雷的位置 */
-const isDebug = true
+const isDebug = false
 /**
  * 随机生成雷的位置
  * @param {*} mineNum
@@ -91,6 +91,44 @@ function renderArea(mineNum, lineNum, columnNum) {
 }
 
 /**
+ * 检查周围是否被标了旗子，且旗子数目等于单击格子的数字
+ * 如果是，则打开周围格子
+ * 如果周围的格子里有雷且该雷不是标的旗子，则游戏结束
+ * @param {*} i
+ * @param {*} j
+ * @returns boolean
+ */
+function checkRound(i, j) {
+  // 格子中数字
+  const num = mines[i][j]
+  // 旗子数量
+  let flagNum = 0
+  for (let row = i - 1; row < i + 2; row++) {
+    for (let column = j - 1; column < j + 2; column++) {
+      const element = document.getElementById(`${row}-${column}`)
+      if (element.classList.contains('flag')) {
+        flagNum++
+      }
+    }
+  }
+  if (flagNum === num) {
+    for (let row = i - 1; row < i + 2; row++) {
+      for (let column = j - 1; column < j + 2; column++) {
+        const element = document.getElementById(`${row}-${column}`)
+        if (!element.classList.contains('flag')) {
+          if (typeof mines[row][column] === 'boolean' && mines[row][column]) {
+            done(row, column)
+          } else {
+            renderCell(row, column)
+          }
+        }
+      }
+    }
+  }
+  return num === flagNum
+}
+
+/**
  * 左键点击某个格子
  * @param {*} id
  */
@@ -107,7 +145,9 @@ function onLeftClick(id) {
     isGameOver = true
     done(i, j)
   } else if (mines[i][j] > 0) {
-    element.style.backgroundImage = `url(./images/${mines[i][j]}.gif)`
+    if (!checkRound(i, j)) {
+      element.style.backgroundImage = `url(./images/${mines[i][j]}.gif)`
+    }
   } else {
     onClickEmpty(i, j)
   }
@@ -145,6 +185,7 @@ function renderCell(i, j, isMineClick) {
     element.style.backgroundImage = `url(./images/${mines[i][j]}.gif)`
   } else {
     element.classList.add('empty')
+    // onClickEmpty(i, j)
   }
 }
 
