@@ -1,7 +1,7 @@
 /** 配置 */
 const config = {
   /** 雷数量 */
-  mineNum: 100,
+  mineNum: 20,
   /** 行数 */
   lineNum: 30,
   /** 列数 */
@@ -15,7 +15,7 @@ let isGameOver = false
 /** 是否打开调试模式：调试模式会显示所有雷的位置 */
 let isDebug = false
 /** 是否打开缓存，方便调试 */
-let isStore = true
+let isStore = false
 /** 算过了的数组 */
 const computeSet = new Set()
 
