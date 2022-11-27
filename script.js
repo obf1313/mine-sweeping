@@ -13,9 +13,11 @@ const container = document.getElementById('container')
 /** 游戏是否结束 */
 let isGameOver = false
 /** 是否打开调试模式：调试模式会显示所有雷的位置 */
-let isDebug = true
+let isDebug = false
 /** 是否打开缓存，方便调试 */
 let isStore = true
+/** 算过了的数组 */
+const computeSet = new Set()
 
 /**
  * 点击调试模式按钮
@@ -131,22 +133,30 @@ function checkRound(i, j) {
   // 旗子数量
   let flagNum = 0
   for (let row = i - 1; row < i + 2; row++) {
-    for (let column = j - 1; column < j + 2; column++) {
-      const element = document.getElementById(`${row}-${column}`)
-      if (element.classList.contains('flag')) {
-        flagNum++
+    if (row >= 0 && row < config.lineNum) {
+      for (let column = j - 1; column < j + 2; column++) {
+        if (column >= 0 && column < config.columnNum) {
+          const element = document.getElementById(`${row}-${column}`)
+          if (element.classList.contains('flag')) {
+            flagNum++
+          }
+        }
       }
     }
   }
   if (flagNum === num) {
     for (let row = i - 1; row < i + 2; row++) {
-      for (let column = j - 1; column < j + 2; column++) {
-        const element = document.getElementById(`${row}-${column}`)
-        if (!element.classList.contains('flag')) {
-          if (typeof mines[row][column] === 'boolean' && mines[row][column]) {
-            done(row, column)
-          } else {
-            renderCell(row, column)
+      if (row >= 0 && row < config.lineNum) {
+        for (let column = j - 1; column < j + 2; column++) {
+          if (column >= 0 && column < config.columnNum) {
+            const element = document.getElementById(`${row}-${column}`)
+            if (!element.classList.contains('flag')) {
+              if (typeof mines[row][column] === 'boolean' && mines[row][column]) {
+                done(row, column)
+              } else {
+                renderCell(row, column)
+              }
+            }
           }
         }
       }
@@ -176,6 +186,7 @@ function onLeftClick(id) {
       element.style.backgroundImage = `url(./images/${mines[i][j]}.gif)`
     }
   } else {
+    computeSet.clear()
     onClickEmpty(i, j)
   }
 }
@@ -212,7 +223,10 @@ function renderCell(i, j, isMineClick) {
     element.style.backgroundImage = `url(./images/${mines[i][j]}.gif)`
   } else {
     element.classList.add('empty')
-    // onClickEmpty(i, j)
+    if (!computeSet.has(`${i}-${j}`)) {
+      computeSet.add(`${i}-${j}`)
+      onClickEmpty(i, j)
+    }
   }
 }
 
@@ -257,7 +271,7 @@ function onClickEmpty(x, y) {
     const jMax = j
     j = y
     for (let indexJ = jMin; indexJ <= jMax; indexJ++) {
-      renderCell(indexI, indexJ)
+      renderCell(indexI, indexJ, x === indexI && y === indexJ)
     }
   }
 }
